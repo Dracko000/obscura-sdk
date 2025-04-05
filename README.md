@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 # Obscura SDK
 
 **Client-side Obscura Protocol for Transaction Ghosting.**  
+=======
+README.md# Obscura SDK
+
+**Client-side Obscura Protocol for Transaction Ghosting.**
+>>>>>>> 897d5ea32ec9ce62eb339d877c4f554707267551
 Send a real Ethereum transaction with N dummy transactions to obscure intent, sequence, and origin.
 
 ## Features
@@ -21,5 +27,8 @@ npx tsx cli.ts tx:ghost \
   --fake 3 \ <Dummy>
   --mode parallel or serial <mode>
 ```
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 897d5ea32ec9ce62eb339d877c4f554707267551
