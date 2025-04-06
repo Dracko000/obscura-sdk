@@ -1,13 +1,5 @@
 import { JsonRpcProvider, Wallet, parseEther } from 'ethers'
-
-interface SendObscureTxOptions {
-  rpcUrl: string
-  privateKey: string
-  to: string
-  valueEth: string
-  fake: boolean
-  nonce?: number
-}
+import { SendObscureTxOptions, SentTxResult } from '../types'
 
 export async function sendObscureTx({
   rpcUrl,
@@ -15,37 +7,32 @@ export async function sendObscureTx({
   to,
   valueEth,
   fake,
-  nonce
-}: SendObscureTxOptions) {
+  nonce,
+}: SendObscureTxOptions): Promise<SentTxResult> {
   const provider = new JsonRpcProvider(rpcUrl)
   const wallet = new Wallet(privateKey, provider)
 
-  const value = parseEther(valueEth)
-  const gasLimit = 21_000n
-
-  const feeData = await provider.getFeeData()
-
-  const fallbackPriority = 1_500_000_000n // 1.5 Gwei
-  const fallbackMax = 5_000_000_000n // 5 Gwei
-
-  const maxPriorityFeePerGas = (feeData.maxPriorityFeePerGas ?? fallbackPriority) + 1_000_000_000n
-  const maxFeePerGas = (feeData.maxFeePerGas ?? fallbackMax) + 2_000_000_000n
+  const gasPrice = await provider.send('eth_gasPrice', [])
 
   const tx = {
     to,
-    value,
-    gasLimit,
-    maxPriorityFeePerGas,
-    maxFeePerGas,
+    value: parseEther(valueEth),
+    gasLimit: 21000,
+    gasPrice,
     nonce,
-    type: 2
   }
 
-  const response = await wallet.sendTransaction(tx)
-  const type = fake ? 'FAKE' : 'REAL'
-  console.log(`TX (${type}) sent: ${response.hash}`)
+  const txResponse = await wallet.sendTransaction(tx)
+  const label = fake ? 'FAKE' : 'REAL'
+  console.log(`TX (${label}) sent: ${txResponse.hash}`)
 
-  const receipt = await response.wait()
-  console.log(`TX confirmed in block: ${receipt.blockNumber}`)
-  return response
+  const receipt = await txResponse.wait()
+  if (receipt) {
+    console.log(`TX confirmed in block: ${receipt.blockNumber}`)
+  }
+
+  return {
+    hash: txResponse.hash,
+    blockNumber: receipt?.blockNumber ?? null,
+  }
 }

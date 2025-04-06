@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { sendGhostedTx } from './src/core/ghost'
+import { sendGhostedTx } from './core/ghost'
 
 const program = new Command()
 
